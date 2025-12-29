@@ -6,8 +6,11 @@ import UserModel from "@/model/User";
 import { id, is, th } from "zod/locales";
 import { email } from "zod";
 
+// NextAuth configuration options
 export const authOptions: NextAuthOptions = {
+  // Define authentication providers
   providers: [
+    // Credentials provider for email and password authentication
     CredentialsProvider({
       id: "credentials",
       name: "Credentials",
@@ -15,27 +18,35 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
+
+      // Authorization logic for credentials provider
       async authorize(credentials: any): Promise<any> {
         await dbConnect();
+        // Find user by email
         try {
           const user = await UserModel.findOne({
             $or: [{ email: credentials.identifier }],
           });
+          // If user not found or not verified, throw an error
           if (!user) {
             throw new Error("No user found with the given email.");
           }
+          // Check if user is verified
           if (!user.isVerified) {
             throw new Error("User email is not verified.");
           }
+          // Compare provided password with stored hashed password
           const isPasswordValid = await bcrypt.compare(
             credentials.password,
             user.password
           );
+          // If password is valid, return user object
           if (isPasswordValid) {
             return user;
           } else {
             throw new Error("Invalid password.");
           }
+          // If any error occurs, throw a generic authentication error
         } catch (err) {
           throw new Error(
             "Error during authentication: " + (err as Error).message
@@ -44,6 +55,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+  // Callbacks to customize JWT and session behavior
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -55,6 +67,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
+      // Attach additional user info to the session object
       if (token) {
         session.user._id = token._id;
         session.user.isVerified = token.isVerified;
@@ -64,6 +77,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  // Specify custom pages for authentication
   pages: {
     signIn: "/signin",
   },
