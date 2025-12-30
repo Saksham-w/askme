@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
     (url.pathname.startsWith("/sign-in") ||
       url.pathname.startsWith("/sign-up") ||
       url.pathname.startsWith("/verify") ||
-      url.pathname.startsWith("/"))
+      url.pathname === "/")
   ) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
@@ -27,7 +27,8 @@ export async function middleware(request: NextRequest) {
   ) {
     return NextResponse.redirect(new URL("/sign-in", request.url)); // Redirect unauthenticated users to sign-in
   }
-  return NextResponse.redirect(new URL("/home", request.url)); // Default redirect to /home
+  // Allow the request to proceed if none of the above conditions match
+  return NextResponse.next();
 }
 
 // Specify the paths to apply the middleware
