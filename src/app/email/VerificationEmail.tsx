@@ -15,6 +15,7 @@ interface VerificationEmailProps {
   otp: string;
 }
 
+// Verification email component that is sent to users
 export default function VerificationEmail({
   username,
   otp,
