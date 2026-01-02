@@ -1,4 +1,4 @@
-import { Message } from "@/src/model/User";
+import { Message } from "@/model/User";
 
 // Standardized API response structure
 export interface ApiResponse {
