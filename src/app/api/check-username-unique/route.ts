@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const queryParam = {
       username: searchParams.get("username"),
     };
-    // Perform schema validation
+    // Perform schema validation and log the result ie the data from query param
     const result = UsernameQuerySchema.safeParse(queryParam);
     console.log(result);
     // If validation fails, return error response
