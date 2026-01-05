@@ -30,6 +30,7 @@ export default function RootLayout({
         {/* Wrap with AuthProvider */}
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          suppressHydrationWarning
         >
           {children}
           <Toaster />
