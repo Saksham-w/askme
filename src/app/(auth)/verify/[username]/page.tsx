@@ -21,25 +21,31 @@ import { toast } from "sonner";
 import z, { string } from "zod";
 import { fi } from "zod/locales";
 
+// Page component for account verification
 const VerifyAccount = () => {
-  const router = useRouter();
-  const param = useParams<{ username: string }>();
+  const router = useRouter(); // Next.js router for navigation
+  const param = useParams<{ username: string }>(); // Get username parameter from URL
 
+  // React Hook Form setup with Zod validation
   const form = useForm<z.infer<typeof verifySchema>>({
     resolver: zodResolver(verifySchema),
   });
 
+  // Form submission handler with API call to verify the account
   const onSubmit = async (data: z.infer<typeof verifySchema>) => {
     try {
+      // Make API call to verify the account with username and code
       const response = await axios.post(`/api/verify-code`, {
         username: param.username,
         code: data.code,
       });
+      // Show success toast message and redirect to sign-in page
       toast.success(response.data.message);
       router.replace(`/sign-in`);
     } catch (error) {
+      // Handle errors from API call
       console.error("Error verifying account:", error);
-      const axiosError = error as AxiosError<ApiResponse>;
+      const axiosError = error as AxiosError<ApiResponse>; // Type assertion for AxiosError
       toast.error(
         axiosError.response?.data.message || "Error verifying account"
       );
@@ -55,6 +61,7 @@ const VerifyAccount = () => {
           </h1>
           <p className="mb-4">Enter the verification code sent to your email</p>
         </div>
+        {/* Verification form component from ui/form.tsx */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
