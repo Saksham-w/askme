@@ -20,11 +20,7 @@ export async function middleware(request: NextRequest) {
   ) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
-  if (
-    !token &&
-    (url.pathname.startsWith("/dashboard") ||
-      url.pathname.startsWith("/verify"))
-  ) {
+  if (!token && url.pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/sign-in", request.url)); // Redirect unauthenticated users to sign-in
   }
   // Allow the request to proceed if none of the above conditions match

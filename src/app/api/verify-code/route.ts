@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         }
       );
     }
-    // Check if the provided code matches and is not expired
+    // Check if the provided code matches with the verification code created during signup and is not expired
     const isCodeValid = user.verifyCode === code;
     const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
 

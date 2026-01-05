@@ -77,7 +77,7 @@ const page = () => {
       // Make API call to sign up the user with form data where data contains email, password, username
       const response = await axios.post<ApiResponse>("/api/signUp", data);
       toast.success(response.data.message); // Show success toast message
-      router.replace(`/verify/${username}`); // Redirect to sign-in page
+      router.replace(`/verify/${username}`); // Redirect to verification page
     } catch (error) {
       console.error("Error signing up:", error);
       // Handle errors from API call
