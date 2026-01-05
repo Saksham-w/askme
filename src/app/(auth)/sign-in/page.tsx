@@ -25,6 +25,7 @@ const page = () => {
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
+      // Default form values ie data's value in the onsubmit function below
       email: "",
       password: "",
       username: "",
@@ -60,7 +61,26 @@ const page = () => {
     checkUsername();
   }, [debouncedUsername]);
 
-  return <div>page</div>;
-};
+  // Function to handle form submission
+  const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
+    setIsSubmitting(true); // Set submitting state to true
+    try {
+      // Make API call to sign up the user with form data where data contains email, password, username
+      const response = await axios.post<ApiResponse>("/api/sign-up", data);
+      toast.success(response.data.message); // Show success toast message
+      router.replace(`/verify/${username}`); // Redirect to sign-in page
+    } catch (error) {
+      // Handle errors from API call
+      const axiosError = error as AxiosError<ApiResponse>; // Type assertion for AxiosError
+      toast.error(
+        // Show error toast message from response or default message
+        axiosError.response?.data.message || "Error signing up"
+      );
+    } finally {
+      setIsSubmitting(false); // Set submitting state to false
+    }
 
+    return <div>page</div>;
+  };
+};
 export default page;
