@@ -11,6 +11,16 @@ export async function sendVerificationEmail(
 ): Promise<ApiResponse> {
   // Define the function to send a verification email
   try {
+    if (!process.env.RESEND_API_KEY) {
+      console.error(
+        "RESEND_API_KEY is not configured in environment variables"
+      );
+      return {
+        success: false,
+        message: "Email service is not configured.",
+      };
+    }
+
     const result = await resend.emails.send({
       // Use the RESEND LIBRARY to send an email
       from: "onboarding@resend.dev",

@@ -15,21 +15,24 @@ export const authOptions: NextAuthOptions = {
       id: "credentials",
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text" },
+        identifier: { label: "Email/Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
 
       // Authorization logic for credentials provider
       async authorize(credentials: any): Promise<any> {
         await dbConnect();
-        // Find user by email
+        // Find user by email or username
         try {
           const user = await UserModel.findOne({
-            $or: [{ email: credentials.identifier }],
+            $or: [
+              { email: credentials.identifier },
+              { username: credentials.identifier },
+            ],
           });
           // If user not found or not verified, throw an error
           if (!user) {
-            throw new Error("No user found with the given email.");
+            throw new Error("No user found with the given email or username.");
           }
           // Check if user is verified
           if (!user.isVerified) {
@@ -79,7 +82,7 @@ export const authOptions: NextAuthOptions = {
   },
   // Specify custom pages for authentication
   pages: {
-    signIn: "/signin",
+    signIn: "/sign-in",
   },
   session: {
     strategy: "jwt",

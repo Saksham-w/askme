@@ -45,14 +45,13 @@ const page = () => {
       password: data.password,
     });
     if (result?.error) {
-      if (result.error == "CredentialsSignin") {
+      if (result.error === "CredentialsSignin") {
         toast.error("Invalid email or password");
+      } else {
+        toast.error("Sign in failed: " + result.error);
       }
     } else {
       toast.success("Signed in successfully");
-    }
-
-    if (result?.url) {
       router.replace("/dashboard");
     }
   };
