@@ -16,31 +16,38 @@ import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCcw } from "lucide-react";
 import { Switch } from "@radix-ui/react-switch";
 
+// Dashboard page component
 const page = () => {
   const [messages, setMessages] = useState<Message[]>([]); // State to hold messages
   const [isLoading, setIsLoading] = useState<boolean>(false); // State for loading indicator
   const [isSwitchLoading, setIsSwitchLoading] = useState<boolean>(false); // State for switch loading indicator
 
+  // Handler to delete a message from the state
   const handleDeleteMessage = (messageId: string) => {
     setMessages(
       messages.filter((message) => message._id.toString() !== messageId)
     );
   };
 
+  // Get user session from next-auth
   const { data: session } = useSession();
-
+  // Initialize form with zod resolver
   const form = useForm({
     resolver: zodResolver(AcceptMessageSchema),
   });
 
+  // Destructure form methods
   const { register, watch, setValue } = form;
 
+  // Watch acceptMessages value from the form to sync with switch ie checked state
   const acceptMessages = watch("acceptMessages");
 
+  // Fetch accept message status from the server
   const fetchAcceptMessage = useCallback(async () => {
     setIsSwitchLoading(true);
 
     try {
+      // Make API call to get accept message status
       const response = await axios.get<ApiResponse>("/api/accept-messages");
       setValue("acceptMessages", response.data.isAcceptingMessages ?? false);
     } catch (error) {
@@ -54,13 +61,16 @@ const page = () => {
     }
   }, [setValue]);
 
+  // Fetch messages from the server
   const fetchMessage = useCallback(
     async (refresh: boolean = false) => {
       setIsLoading(true);
       setIsSwitchLoading(false);
       try {
+        // Make API call to get messages
         const response = await axios.get<ApiResponse>("/api/get-messages");
         setMessages(response.data.messages || []);
+        // Show toast if it's a manual refresh
         if (refresh) {
           toast.success("Messages refreshed");
         }
@@ -77,14 +87,17 @@ const page = () => {
     [setIsLoading, setIsSwitchLoading]
   );
 
+  // Fetch accept message status and messages on component mount or session change
   useEffect(() => {
     if (!session || !session.user) return;
     fetchAcceptMessage();
     fetchMessage();
   }, [session, setValue, fetchAcceptMessage, fetchMessage]);
 
+  // Handler for switch change to update accept message status on btn toggle
   const handleSwitchChange = async () => {
     try {
+      // Make API call to update accept message status
       const response = await axios.post<ApiResponse>("/api/accept-messages", {
         acceptMessages: !acceptMessages,
       });
@@ -99,15 +112,18 @@ const page = () => {
     }
   };
 
+  // Construct profile URL for the user
   const { username } = session?.user as User;
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
   const profileUrl = `${baseUrl}/u/${username}`;
 
+  // Function to copy profile URL to clipboard
   const copyToClipboard = () => {
     navigator.clipboard.writeText(profileUrl);
     toast.success("Profile URL copied to clipboard");
   };
 
+  // If no session or user, prompt to log in
   if (!session || !session.user) {
     return <div>Please log in to access the dashboard.</div>;
   }
