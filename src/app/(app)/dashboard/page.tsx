@@ -112,8 +112,13 @@ const page = () => {
     }
   };
 
+  // If no session or user, prompt to log in
+  if (!session || !session.user) {
+    return <div>Please log in to access the dashboard.</div>;
+  }
+
   // Construct profile URL for the user
-  const { username } = session?.user as User;
+  const { username } = session.user as User;
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
   const profileUrl = `${baseUrl}/u/${username}`;
 
@@ -122,11 +127,6 @@ const page = () => {
     navigator.clipboard.writeText(profileUrl);
     toast.success("Profile URL copied to clipboard");
   };
-
-  // If no session or user, prompt to log in
-  if (!session || !session.user) {
-    return <div>Please log in to access the dashboard.</div>;
-  }
 
   return (
     <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl">
