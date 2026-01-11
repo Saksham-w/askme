@@ -87,9 +87,9 @@ const page = () => {
     [setIsLoading, setIsSwitchLoading]
   );
 
-  // Fetch accept message status and messages on component mount or session change
+  // Fetch accept message status and messages on component mount or session change ie auto reload messages
   useEffect(() => {
-    if (!session || !session.user) return;
+    if (!session || !session.user) return; // If no session, do nothing
     fetchAcceptMessage();
     fetchMessage();
   }, [session, setValue, fetchAcceptMessage, fetchMessage]);
