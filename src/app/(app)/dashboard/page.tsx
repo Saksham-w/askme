@@ -13,8 +13,10 @@ import { set } from "mongoose";
 import { User } from "next-auth";
 import { MessageCard } from "@/components/MessageCard";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCcw } from "lucide-react";
+import { Copy, LinkIcon, Loader2, RefreshCcw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // Dashboard page component
 const page = () => {
@@ -129,61 +131,150 @@ const page = () => {
   };
 
   return (
-    <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl">
-      <h1 className="text-4xl font-bold mb-4">User Dashboard</h1>
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-grow container mx-auto px-4 md:px-6 py-8 md:py-12">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="mb-8 md:mb-12">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Manage your anonymous messages and settings
+            </p>
+          </div>
 
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Copy Your Unique Link</h2>{" "}
-        <div className="flex items-center">
-          <input
-            type="text"
-            value={profileUrl}
-            disabled
-            className="input input-bordered w-full p-2 mr-2"
-          />
-          <Button onClick={copyToClipboard}>Copy</Button>
+          {/* Share Link Section */}
+          <section
+            className="glass rounded-2xl border-glass-border p-6 mb-8"
+            aria-labelledby="share-link-heading"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <LinkIcon className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div>
+                <h2 id="share-link-heading" className="font-semibold">
+                  Your Unique Link
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Share this link to receive anonymous messages
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Input
+                type="text"
+                value={profileUrl}
+                readOnly
+                className="flex-1 bg-secondary/50 border-border"
+                aria-label="Your profile URL"
+              />
+              <Button
+                onClick={copyToClipboard}
+                className="bg-primary text-primary-foreground hover:bg-primary/30 hover:text-foreground gap-2 cursor-pointer"
+              >
+                <Copy className="h-4 w-4" aria-hidden="true" />
+                Copy Link
+              </Button>
+            </div>
+          </section>
+
+          {/* Settings Section */}
+          <section
+            className="glass rounded-2xl border-glass-border p-6 mb-8"
+            aria-labelledby="settings-heading"
+          >
+            <h2 id="settings-heading" className="sr-only">
+              Message Settings
+            </h2>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Label
+                  htmlFor="accept-messages"
+                  className="text-base font-medium cursor-pointer"
+                >
+                  Accept Messages
+                </Label>
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${
+                    acceptMessages
+                      ? "bg-primary/10 text-primary"
+                      : "bg-destructive/10 text-destructive"
+                  }`}
+                >
+                  {acceptMessages ? "Active" : "Paused"}
+                </span>
+              </div>
+              <Switch
+                className="cursor-pointer"
+                id="accept-messages"
+                checked={acceptMessages}
+                onCheckedChange={handleSwitchChange}
+                aria-describedby="accept-messages-description"
+              />
+            </div>
+            <p
+              id="accept-messages-description"
+              className="text-sm text-muted-foreground mt-2"
+            >
+              {acceptMessages
+                ? "You're currently receiving anonymous messages"
+                : "You won't receive new messages until you turn this back on"}
+            </p>
+          </section>
+
+          {/* Messages Section */}
+          <section aria-labelledby="messages-heading">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 id="messages-heading" className="text-xl font-semibold">
+                  Your Messages
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {messages.length} message{messages.length !== 1 ? "s" : ""}{" "}
+                  received
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fetchMessage(true)}
+                disabled={isLoading}
+                className="border-border hover:text-foreground hover:bg-secondary gap-2 cursor-pointer"
+                aria-label="Refresh messages"
+              >
+                {isLoading ? (
+                  <Loader2
+                    className="h-4 w-4 animate-spin"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <RefreshCcw className="h-4 w-4" aria-hidden="true" />
+                )}
+                Refresh
+              </Button>
+            </div>
+
+            {messages.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                {messages.map((message) => (
+                  <MessageCard
+                    key={message._id.toString()}
+                    message={message} // Pass message data
+                    onMessageDelete={handleDeleteMessage} // Pass delete handler to MessageCard for removing message after deletion from server
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16 glass rounded-2xl border-glass-border">
+                <p className="text-muted-foreground mb-2">No messages yet</p>
+                <p className="text-sm text-muted-foreground">
+                  Share your link to start receiving anonymous feedback
+                </p>
+              </div>
+            )}
+          </section>
         </div>
-      </div>
-
-      <div className="mb-4">
-        <Switch
-          {...register("acceptMessages")}
-          checked={acceptMessages}
-          onCheckedChange={handleSwitchChange}
-          disabled={isSwitchLoading}
-        />
-        <span className="ml-2">
-          Accept Messages: {acceptMessages ? "On" : "Off"}
-        </span>
-      </div>
-
-      <Button
-        className="mt-4"
-        variant="outline"
-        onClick={(e) => {
-          e.preventDefault();
-          fetchMessage(true);
-        }}
-      >
-        {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <RefreshCcw className="h-4 w-4" />
-        )}
-      </Button>
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-        {messages.length > 0 ? (
-          messages.map((message, index) => (
-            <MessageCard
-              key={message._id.toString()}
-              message={message}
-              onMessageDelete={handleDeleteMessage}
-            />
-          ))
-        ) : (
-          <p>No messages to display.</p>
-        )}
-      </div>
+      </main>
     </div>
   );
 };

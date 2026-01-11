@@ -10,9 +10,11 @@ import { useRouter } from "next/navigation";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/app/types/ApiResponse";
-import { Loader2 } from "lucide-react";
+import { Check, Loader2, MessageCircle } from "lucide-react";
 import {
   Form,
+  FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -20,6 +22,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 // Page component for sign-up
 const page = () => {
@@ -29,6 +38,7 @@ const page = () => {
   const [isSubmitting, setIsSubmitting] = useState(false); // State to indicate if form submission is in progress
   const debounced = useDebounceCallback(setUsername, 300); // Debounced username value ie the username state updated after 300ms of inactivity
   const router = useRouter(); // Next.js router for navigation
+  const [isLoading, setIsLoading] = useState(false);
 
   // React Hook Form setup with Zod validation
   const form = useForm<z.infer<typeof signUpSchema>>({
@@ -77,7 +87,7 @@ const page = () => {
       // Make API call to sign up the user with form data where data contains email, password, username
       const response = await axios.post<ApiResponse>("/api/signUp", data);
       toast.success(response.data.message); // Show success toast message
-      router.replace(`/verify/${username}`); // Redirect to verification page
+      router.replace(`/verify/${data.username}`); // Redirect to verification page
     } catch (error) {
       console.error("Error signing up:", error);
       // Handle errors from API call
@@ -91,93 +101,153 @@ const page = () => {
     }
   };
 
-  return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-800">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-            Join True Feedback
-          </h1>
-          <p className="mb-4">Sign up to start your anonymous adventure</p>
-        </div>
-        {/* Sign-up form component from ui/form.tsx */}
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              name="username"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <Input
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      setUsername(e.target.value);
-                    }}
-                  />
-                  {isCheckingUsername && <Loader2 className="animate-spin" />}
-                  {!isCheckingUsername && usernameMessage && (
-                    <p
-                      className={`text-sm ${
-                        usernameMessage === "Username is unique"
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }`}
-                    >
-                      {usernameMessage}
-                    </p>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="email"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <Input {...field} name="email" />
-                  <p className="text-gray-400 text-sm">
-                    We will send you a verification code
-                  </p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+  const features = [
+    "Receive unlimited anonymous messages",
+    "AI-powered message suggestions",
+    "Custom shareable link",
+    "Message moderation tools",
+  ];
 
-            <FormField
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <Input type="password" {...field} name="password" />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
-              ) : (
-                "Sign Up"
-              )}
-            </Button>
-          </form>
-        </Form>
-        <div className="text-center mt-4">
-          <p>
-            Already a member?{" "}
-            <Link href="/sign-in" className="text-blue-600 hover:text-blue-800">
-              Sign in
-            </Link>
-          </p>
-        </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 py-12">
+      {/* Background gradient */}
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none"
+        aria-hidden="true"
+      />
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo */}
+        <Link
+          href="/"
+          className="flex items-center justify-center gap-2 mb-8"
+          aria-label="AskMe Home"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <MessageCircle className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <span className="text-2xl font-bold tracking-tight">
+            ASK<span className="text-primary">ME</span>
+          </span>
+        </Link>
+
+        <Card className="glass border-glass-border">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Create your inbox</CardTitle>
+            <CardDescription>
+              Start receiving anonymous feedback today
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Features list */}
+            <div className="mb-6 space-y-2">
+              {features.map((feature, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 text-sm text-muted-foreground"
+                >
+                  <Check
+                    className="h-4 w-4 text-primary shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span>{feature}</span>
+                </div>
+              ))}
+            </div>
+
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="johndoe"
+                          className="bg-secondary/50 border-border focus:border-primary/50"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        This will be your unique link: askme.app/u/
+                        {field.value || "username"}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="you@example.com"
+                          className="bg-secondary/50 border-border focus:border-primary/50"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          className="bg-secondary/50 border-border focus:border-primary/50"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/30 hover:text-foreground h-11 cursor-pointer"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2
+                        className="mr-2 h-4 w-4 animate-spin"
+                        aria-hidden="true"
+                      />
+                      Creating account...
+                    </>
+                  ) : (
+                    "Create Account"
+                  )}
+                </Button>
+              </form>
+            </Form>
+
+            <p className="text-center text-sm text-muted-foreground mt-6">
+              Already have an account?{" "}
+              <Link
+                href="/sign-in"
+                className="text-primary hover:bg-primary/20 hover:underline font-medium"
+              >
+                Sign in
+              </Link>
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

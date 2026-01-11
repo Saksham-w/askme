@@ -10,9 +10,10 @@ import { redirect, useRouter } from "next/navigation";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/app/types/ApiResponse";
-import { Loader2 } from "lucide-react";
+import { Loader2, MessageCircle } from "lucide-react";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
@@ -22,10 +23,18 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { signInSchema } from "@/schemas/signInSchema";
 import { signIn } from "next-auth/react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 // Page component for sign-up
 const page = () => {
   const router = useRouter(); // Next.js router for navigation
+  const [isLoading, setIsLoading] = useState(false);
 
   // React Hook Form setup with Zod validation
   const form = useForm<z.infer<typeof signInSchema>>({
@@ -44,6 +53,7 @@ const page = () => {
       identifier: data.identifier,
       password: data.password,
     });
+    setIsLoading(false);
     if (result?.error) {
       if (result.error === "CredentialsSignin") {
         toast.error("Invalid email or password");
@@ -56,56 +66,108 @@ const page = () => {
     }
   };
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-800">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-            Join True Feedback
-          </h1>
-          <p className="mb-4">Sign in to start your anonymous adventure</p>
-        </div>
-        {/* Sign-up form component from ui/form.tsx */}
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              name="identifier"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email/Username</FormLabel>
-                  <Input {...field} name="email/username" />
-                  <p className="text-gray-400 text-sm">
-                    We will send you a verification code
-                  </p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <div className="min-h-screen flex items-center justify-center px-4 py-12">
+      {/* Background gradient */}
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none"
+        aria-hidden="true"
+      />
 
-            <FormField
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <Input type="password" {...field} name="password" />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full">
-              Sign In
-            </Button>
-          </form>
-        </Form>
-        <div className="text-center mt-4">
-          <p>
-            Already a member?{" "}
-            <Link href="/sign-in" className="text-blue-600 hover:text-blue-800">
-              Sign in
-            </Link>
-          </p>
-        </div>
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo */}
+        <Link
+          href="/"
+          className="flex items-center justify-center gap-2 mb-8"
+          aria-label="True Feedback Home"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <MessageCircle className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <span className="text-2xl font-bold tracking-tight">
+            ASK<span className="text-primary">ME</span>
+          </span>
+        </Link>
+
+        <Card className="glass border-glass-border">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Welcome back</CardTitle>
+            <CardDescription>
+              Sign in to access your anonymous inbox
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="identifier"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="you@example.com"
+                          className="bg-secondary/50 border-border focus:border-primary/50"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          className="bg-secondary/50 border-border focus:border-primary/50"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/30 hover:text-foreground h-11 cursor-pointer"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2
+                        className="mr-2 h-4 w-4 animate-spin"
+                        aria-hidden="true"
+                      />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
+                </Button>
+              </form>
+            </Form>
+
+            <p className="text-center text-sm text-muted-foreground mt-6">
+              Don't have an account?{" "}
+              <Link
+                href="/sign-up"
+                className="text-primary hover:underline font-medium"
+              >
+                Sign up
+              </Link>
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

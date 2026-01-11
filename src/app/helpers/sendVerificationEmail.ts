@@ -11,6 +11,13 @@ export async function sendVerificationEmail(
 ): Promise<ApiResponse> {
   // Define the function to send a verification email
   try {
+    // Log verification code for development/testing
+    // console.log("=".repeat(50));
+    // console.log("📧 VERIFICATION CODE FOR:", email);
+    // console.log("👤 USERNAME:", username);
+    // console.log("🔑 CODE:", verifyCode);
+    // console.log("=".repeat(50));
+
     if (!process.env.RESEND_API_KEY) {
       console.error(
         "RESEND_API_KEY is not configured in environment variables"

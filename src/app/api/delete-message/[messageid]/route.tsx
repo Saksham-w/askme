@@ -2,14 +2,15 @@ import { getServerSession, User } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/option";
 import { dbConnect } from "@/lib/dbConnect";
 import UserModel from "@/model/User";
+import mongoose from "mongoose";
 
 // DELETE /api/delete-message/[messageid]
 export async function DELETE(
   request: Request,
-  { params }: { params: { messageid: string } }
+  { params }: { params: Promise<{ messageid: string }> }
 ) {
-  // Extract message ID from params
-  const messageid = params.messageid;
+  // Extract message ID from params (params is now a Promise in Next.js 15)
+  const { messageid } = await params;
   await dbConnect();
   const session = await getServerSession(authOptions); // Get user session
   const user: User = session?.user as User; // Type assertion for user
@@ -27,8 +28,8 @@ export async function DELETE(
   try {
     // Delete the message from the user's messages array using $pull
     const updatedResult = await UserModel.updateOne(
-      { email: user.email },
-      { $pull: { messages: { _id: messageid } } }
+      { _id: user._id },
+      { $pull: { messages: { _id: new mongoose.Types.ObjectId(messageid) } } }
     );
     // Check if any document was modified if not found return 404
     if (updatedResult.modifiedCount === 0) {

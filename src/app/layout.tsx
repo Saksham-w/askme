@@ -3,6 +3,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/context/AuthProvider";
+import { ThemeProvider } from "@/context/ThemeProvider";
+import Navbar from "@/components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,17 +27,55 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <AuthProvider>
-        {/* Wrap with AuthProvider */}
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          suppressHydrationWarning
-        >
-          {children}
-          <Toaster />
-        </body>
-      </AuthProvider>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Remove browser extension attributes before React hydrates
+                const observer = new MutationObserver(function(mutations) {
+                  mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'bis_skin_checked') {
+                      mutation.target.removeAttribute('bis_skin_checked');
+                    }
+                  });
+                });
+                
+                // Clean existing attributes
+                document.addEventListener('DOMContentLoaded', function() {
+                  const elements = document.querySelectorAll('[bis_skin_checked]');
+                  elements.forEach(function(el) {
+                    el.removeAttribute('bis_skin_checked');
+                  });
+                });
+                
+                // Observe future additions
+                if (typeof document !== 'undefined') {
+                  observer.observe(document.documentElement, {
+                    attributes: true,
+                    attributeOldValue: true,
+                    subtree: true,
+                    attributeFilter: ['bis_skin_checked']
+                  });
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
+      >
+        <AuthProvider>
+          <ThemeProvider>
+            <Navbar />
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </AuthProvider>
+      </body>
     </html>
   );
 }
