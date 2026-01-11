@@ -6,7 +6,7 @@ import { User } from "next-auth";
 import { success } from "zod";
 
 // API route to handle accepting messages preference
-export async function Post(request: Request) {
+export async function POST(request: Request) {
   // Connect to the database
   await dbConnect();
 
@@ -28,7 +28,7 @@ export async function Post(request: Request) {
   // Extract the user ID
   const userId = user._id;
   // Parse the request body to get the acceptMessages value
-  const acceptMessages = await request.json();
+  const { acceptMessages } = await request.json();
 
   try {
     // Update the user's isAcceptingMessages status in the database with the new value
@@ -109,7 +109,7 @@ export async function GET(request: Request) {
       {
         success: true,
         message: "User retrieved successfully",
-        data: foundUser.isAcceptingMessages,
+        isAcceptingMessages: foundUser.isAcceptingMessages,
       },
       { status: 200 }
     );

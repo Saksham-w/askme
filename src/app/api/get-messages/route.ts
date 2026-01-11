@@ -29,8 +29,8 @@ export async function GET(request: Request) {
   try {
     // Retrieve the user's messages from the database, sorted by createdAt in descending order
     const user = await UserModel.aggregate([
-      { $match: { id: userId } }, // Match the user by ID
-      { $unwind: "$messages" }, // Unwind the messages array
+      { $match: { _id: userId } }, // Match the user by ID
+      { $unwind: { path: "$messages", preserveNullAndEmptyArrays: true } }, // Unwind the messages array
       { $sort: { "messages.createdAt": -1 } }, // Sort messages by createdAt descending
       // Regroup the messages back into an array
       {
@@ -40,14 +40,14 @@ export async function GET(request: Request) {
         },
       },
     ]);
-    // If user not found, return an error response
-    if (!user) {
+    // If user not found or aggregation failed, return an error response
+    if (!user || user.length === 0) {
       return Response.json(
         {
           success: false,
-          message: "Failed to retrieve messages",
+          message: "User not found",
         },
-        { status: 401 }
+        { status: 404 }
       );
     }
     // Return a success response with the retrieved messages
@@ -55,9 +55,18 @@ export async function GET(request: Request) {
       {
         success: true,
         message: "Messages retrieved successfully",
-        data: user[0].messages,
+        messages: user[0].messages || [], // Return messages or empty array if none
       },
       { status: 200 }
     );
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error retrieving messages:", error);
+    return Response.json(
+      {
+        success: false,
+        message: "Failed to retrieve messages",
+      },
+      { status: 500 }
+    );
+  }
 }
