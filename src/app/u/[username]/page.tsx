@@ -106,7 +106,7 @@ export default function SendMessage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <main className="flex-grow container mx-auto px-4 md:px-6 py-8 md:py-12">
+      <main className=" container mx-auto px-4 md:px-6 py-8 md:py-12">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8 md:mb-12">
@@ -138,7 +138,7 @@ export default function SendMessage() {
                         <FormControl>
                           <Textarea
                             placeholder="Write your anonymous message here..."
-                            className="min-h-[150px] resize-none bg-secondary/50 border-border focus:border-primary/50"
+                            className=" resize-none bg-secondary/50 border-border focus:border-primary/50"
                             {...field}
                           />
                         </FormControl>

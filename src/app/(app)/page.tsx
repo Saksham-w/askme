@@ -24,11 +24,11 @@ export default function Home() {
     <>
       <div className="min-h-screen flex flex-col">
         {/* Hero Section */}
-        <main className="flex-grow">
+        <main className="">
           <section className="relative overflow-hidden">
             {/* Background gradient */}
             <div
-              className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none"
+              className="absolute inset-0  from-primary/5 via-transparent to-transparent pointer-events-none"
               aria-hidden="true"
             />
 

@@ -132,7 +132,7 @@ const page = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <main className="flex-grow container mx-auto px-4 md:px-6 py-8 md:py-12">
+      <main className=" container mx-auto px-4 md:px-6 py-8 md:py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8 md:mb-12">

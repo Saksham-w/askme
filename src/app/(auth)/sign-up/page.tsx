@@ -112,7 +112,7 @@ const page = () => {
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       {/* Background gradient */}
       <div
-        className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none"
+        className="absolute inset-0 from-primary/5 via-transparent to-transparent pointer-events-none"
         aria-hidden="true"
       />
 
