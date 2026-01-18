@@ -36,20 +36,13 @@ export async function POST(req: Request) {
   try {
     console.log("🤖 Generating AI questions with Groq (free API)...");
 
-    const apiKey = process.env.GROQ_API_KEY;
-    
-    if (!apiKey) {
-      console.log("⚠️ GROQ_API_KEY not found, using fallback");
-      throw new Error("API key not configured");
-    }
-
     const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${process.env.GROK_API_KEY}`,
         },
         body: JSON.stringify({
           model: "llama-3.1-8b-instant",
