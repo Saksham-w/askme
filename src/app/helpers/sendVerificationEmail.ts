@@ -1,54 +1,38 @@
-import { url } from "inspector";
-import { resend } from "../../lib/resend";
+import nodemailer from "nodemailer";
+import { render } from "@react-email/render";
 import VerificationEmail from "../email/VerificationEmail";
-import { ApiResponse } from "../types/ApiResponse";
 
-// Function to send verification email
 export async function sendVerificationEmail(
   email: string,
   username: string,
-  verifyCode: string
-): Promise<ApiResponse> {
-  // Define the function to send a verification email
+  verifyCode: string,
+) {
   try {
-    // Log verification code for development/testing
-    // console.log("=".repeat(50));
-    // console.log("📧 VERIFICATION CODE FOR:", email);
-    // console.log("👤 USERNAME:", username);
-    // console.log("🔑 CODE:", verifyCode);
-    // console.log("=".repeat(50));
-
-    if (!process.env.RESEND_API_KEY) {
-      console.error(
-        "RESEND_API_KEY is not configured in environment variables"
-      );
-      return {
-        success: false,
-        message: "Email service is not configured.",
-      };
-    }
-
-    const result = await resend.emails.send({
-      // Use the RESEND LIBRARY to send an email
-      from: "onboarding@resend.dev",
-      to: email,
-      subject: "Your Verification Code",
-      react: VerificationEmail({ username, otp: verifyCode }),
+    // Create a transporter using Gmail
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "sakshamshrestha.dev@gmail.com", // Your Gmail address
+        pass: process.env.GMAIL_APP_PASSWORD!, // App Password from .env
+      },
     });
 
-    console.log("Email sent successfully:", result);
+    // Render the React email component to HTML string
+    const htmlContent = await render(
+      VerificationEmail({ username, otp: verifyCode }),
+    );
 
-    // If email is sent successfully, return success response
-    return {
-      success: true,
-      message: "Verification email sent successfully.",
-    };
-  } catch (emailError) {
-    console.error("Error sending verification email:", emailError);
-    // If there is an error sending the email, return failure response
-    return {
-      success: false,
-      message: "Failed to send verification email.",
-    };
+    // Send the email
+    await transporter.sendMail({
+      from: '"OTP Sender" <sakshamshrestha.dev@gmail.com>', // Sender name and email
+      to: email, // Recipient email
+      subject: "Your Verification Code", // Email subject
+      html: htmlContent, // HTML content
+    });
+
+    return { success: true, message: "Verification email sent successfully." };
+  } catch (error) {
+    console.error("Error sending verification email:", error);
+    return { success: false, message: "Failed to send verification email." };
   }
 }

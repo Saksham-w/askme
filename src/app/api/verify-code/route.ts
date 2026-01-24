@@ -26,7 +26,7 @@ export async function POST(request: Request) {
         },
         {
           status: 404,
-        }
+        },
       );
     }
     // Check if the provided code matches with the verification code created during signup and is not expired
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
         },
         {
           status: 200,
-        }
+        },
       );
     }
     // Handle different error scenarios ie if code is invalid or expired
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
         },
         {
           status: 400,
-        }
+        },
       );
     } else {
       return Response.json(
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
         },
         {
           status: 400,
-        }
+        },
       );
     }
   } catch (error) {
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
