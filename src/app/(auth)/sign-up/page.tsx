@@ -62,7 +62,7 @@ const page = () => {
         try {
           // Make API call to check username uniqueness with debounced username
           const response = await axios.get(
-            `/api/check-username-unique?username=${username}`
+            `/api/check-username-unique?username=${username}`,
           );
           setUsernameMessage(response.data.message); // Set success message from response
         } catch (error) {
@@ -70,7 +70,7 @@ const page = () => {
           const axiosError = error as AxiosError<ApiResponse>; // Type assertion for AxiosError
           setUsernameMessage(
             // Set error message from response or default message
-            axiosError.response?.data.message || "Error checking username"
+            axiosError.response?.data.message || "Error checking username",
           );
         } finally {
           setIsCheckingUsername(false); // Set checking state to false
@@ -82,22 +82,18 @@ const page = () => {
 
   // Function to handle form submission
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
-    setIsSubmitting(true); // Set submitting state to true
+    setIsLoading(true);
     try {
-      // Make API call to sign up the user with form data where data contains email, password, username
       const response = await axios.post<ApiResponse>("/api/signUp", data);
-      toast.success(response.data.message); // Show success toast message
-      router.replace(`/verify/${data.username}`); // Redirect to verification page
+      toast.success(response.data.message);
+      // Navigate to verification page; keep button disabled until navigation starts
+      await router.replace(`/verify/${data.username}`);
     } catch (error) {
       console.error("Error signing up:", error);
-      // Handle errors from API call
-      const axiosError = error as AxiosError<ApiResponse>; // Type assertion for AxiosError
-      toast.error(
-        // Show error toast message from response or default message
-        axiosError.response?.data.message || "Error signing up"
-      );
+      const axiosError = error as AxiosError<ApiResponse>;
+      toast.error(axiosError.response?.data.message || "Error signing up");
     } finally {
-      setIsSubmitting(false); // Set submitting state to false
+      setIsLoading(false);
     }
   };
 

@@ -73,7 +73,7 @@ export async function POST(request: Request) {
           success: false,
           message: "Username is already taken.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
             success: false,
             message: "User with this email already exists.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
       // If email is registered but not verified, update the existing record instead of creating a duplicate.
@@ -130,8 +130,18 @@ export async function POST(request: Request) {
     const emailResponse = await sendVerificationEmail(
       email,
       username,
-      verifyCode
+      verifyCode,
     );
+
+    if (!emailResponse.success) {
+      return Response.json(
+        {
+          success: false,
+          message: "Failed to send verification code to email.",
+        },
+        { status: 500 },
+      );
+    }
 
     // If email sending fails, return an error response
     if (!emailResponse.success) {
@@ -140,7 +150,7 @@ export async function POST(request: Request) {
           success: false,
           message: "Failed to send verification code to email.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -150,7 +160,7 @@ export async function POST(request: Request) {
         success: true,
         message: "Verification code sent to email.",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     // Handle any unexpected errors
@@ -160,7 +170,7 @@ export async function POST(request: Request) {
         success: false,
         message: "Internal server error.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

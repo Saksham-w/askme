@@ -45,6 +45,7 @@ const VerifyAccount = () => {
 
   // Form submission handler with API call to verify the account
   const onSubmit = async (data: z.infer<typeof verifySchema>) => {
+    setIsLoading(true);
     try {
       // Make API call to verify the account with username and code
       const response = await axios.post(`/api/verify-code`, {
@@ -53,14 +54,16 @@ const VerifyAccount = () => {
       });
       // Show success toast message and redirect to sign-in page
       toast.success(response.data.message);
-      router.replace(`/sign-in`);
+      await router.replace(`/sign-in`);
     } catch (error) {
       // Handle errors from API call
       console.error("Error verifying account:", error);
       const axiosError = error as AxiosError<ApiResponse>; // Type assertion for AxiosError
       toast.error(
-        axiosError.response?.data.message || "Error verifying account"
+        axiosError.response?.data.message || "Error verifying account",
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
